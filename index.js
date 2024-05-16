@@ -102,7 +102,17 @@ io.on("connection", (socket) => {
     if (!receiver) return;
     socket.to(receiver.socketId).emit("getMessage", {
       senderId,
-      text,
+      text
+    });
+  });
+
+  socket.on("sendImage", ({ senderId, receiverId, img }) => {
+    console.log(senderId,receiverId,img)
+    const receiver = getUser(receiverId);
+    if (!receiver) return;
+    socket.to(receiver.socketId).emit("getImage", {
+      senderId,
+      img
     });
   });
 
