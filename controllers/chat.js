@@ -60,5 +60,21 @@ let getConversation = async (req, res) => {
       res.status(400).send({ message: err,deleted:false });
     }
   };
+
+  let UpdateSeen=async(req,res)=>{
+    let {conversationId,sender}=req.body
+    try{
+    let updatedMessages=await Messages.updateMany({conversationId,sender},{
+      seen:true
+    })
+    if(!updatedMessages)
+      return res.status(402).send({message:"some error occured",success:false})
+
+     res.status(200).send({message:"updated",success:true})
+    }catch(error){
+      res.status(400).send({error:error.toString(),success:false})
+    }
+
+  }
   
-  module.exports={getConversation,removeFreind,saveMessage,getMessages,ClearChat}
+  module.exports={getConversation,removeFreind,saveMessage,getMessages,ClearChat,UpdateSeen}

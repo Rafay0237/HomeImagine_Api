@@ -97,7 +97,6 @@ io.on("connection", (socket) => {
   socket.emit("getUsers", users);
 
   socket.on("sendMessage", ({ senderId, receiverId, text }) => {
-    console.log(senderId,receiverId,text)
     const receiver = getUser(receiverId);
     if (!receiver) return;
     socket.to(receiver.socketId).emit("getMessage", {
@@ -107,7 +106,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("sendImage", ({ senderId, receiverId, img }) => {
-    console.log(senderId,receiverId,img)
     const receiver = getUser(receiverId);
     if (!receiver) return;
     socket.to(receiver.socketId).emit("getImage", {
@@ -115,6 +113,16 @@ io.on("connection", (socket) => {
       img
     });
   });
+
+  socket.on("messageSeen",({conversationId,sender})=>{
+    const receiver=getUser(sender)
+    if(!receiver) return
+    console.log(receiver.userId,sender)
+    socket.to(receiver.socketId).emit("updateMessageSeen",{
+      conversationId,
+      sender
+    })
+  })
 
   console.log(users);
 });
