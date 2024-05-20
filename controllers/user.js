@@ -142,7 +142,7 @@ let verifyToken = async (req, res,next) => {
     const decodedToken =  jwt.verify(token, secret);
     if (!decodedToken)
       return res
-        .staus(400)
+        .status(400)
         .send({ message: "Unauthorized User! Token expired", success: false });
     next();
   } catch (error) {
@@ -151,7 +151,7 @@ let verifyToken = async (req, res,next) => {
   }
 };
 
-let deleteuser = async (req, res) => {
+let deleteUserAcc = async (req, res) => {
   try {
     const id = req.params.userId;
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -188,6 +188,6 @@ module.exports = {
   googleLogin,
   verifyToken,
   changeUsername,
-  deleteuser,
+  deleteUserAcc,
   getUser
 };

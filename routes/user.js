@@ -8,7 +8,7 @@ const {
   googleLogin,
   verifyToken,
   changeUsername,
-  deleteuser
+  deleteUserAcc
 } = require("../controllers/user");
 
 router.get("/:userId",getUser)
@@ -23,7 +23,7 @@ router.post("/google-login",googleLogin)
 
 router.post("/change-username",verifyToken,changeUsername)
 
-router.delete("/delete-account/:userId",verifyToken,deleteuser)
+router.delete("/delete-account/:userId",verifyToken,deleteUserAcc)
 
 
 module.exports=router
