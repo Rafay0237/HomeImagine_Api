@@ -10,7 +10,7 @@ let sendProposal = async (req, res) => {
         { userId: userId }
     ]
     })
-    if(proposalExists==true)
+    if(proposalExists)
     return res.status(200).send({message:"Proposal is already sent!"})
 
     let newProposal = await new Proposals(req.body);
@@ -32,7 +32,7 @@ let getProposals = async (req, res) => {
     return res.status(200).send({ proposals,found:true});
   } catch (err) {
     console.log(err);
-    return res.status(500).send({ error: err.toString() });
+    return res.status(500).send({ error: err.toString() ,found:false});
   }
 }; 
 

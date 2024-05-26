@@ -5,7 +5,9 @@ const {
 //   createProduct,
 //   updateProduct,
 //   deleteProduct,
-  getProductsByCategory
+  getProductsByCategory,
+  saveShippingAddress,
+  checkShippingAddressExists
 } = require('../controllers/product');
 
 router.get('/:id', getProductById);
@@ -13,5 +15,9 @@ router.get('/:id', getProductById);
 // router.put('/:id', updateProduct);
 // router.delete('/:id', deleteProduct);
 router.get('/category/:category', getProductsByCategory); 
+
+router.post('/shipping-address', saveShippingAddress); 
+
+router.get('/shipping-address/:userId', checkShippingAddressExists); 
 
 module.exports = router;

@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const http = require("http");
+const bodyParser = require('body-parser');
 const cors = require("cors");
 require("dotenv").config();
 
@@ -23,6 +24,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || "0.0.0.0";

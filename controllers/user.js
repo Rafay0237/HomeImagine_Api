@@ -2,6 +2,7 @@ const Users = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 const secret = process.env.SECRET;
 
@@ -30,18 +31,20 @@ let signup = async (req, res) => {
 
 let login = async (req, res) => {
   const { email, password } = req.body;
-  
+
   try {
     const user = await Users.findOne({ email });
     if (!user)
       return res
-    .status(404)
-    .send({ message: "No email id exists with this name" ,success:false});
-    
+        .status(404)
+        .send({ message: "No email id exists with this name", success: false });
+
     let verifyPassword = await bcrypt.compare(password, user.password);
-    console.log(verifyPassword)
+    console.log(verifyPassword);
     if (!verifyPassword)
-      return res.status(400).send({ message: "invalid password" ,success:false});
+      return res
+        .status(400)
+        .send({ message: "invalid password", success: false });
 
     const token = jwt.sign({ id: user._id, role: "user" }, secret, {
       algorithm: "HS256",
@@ -51,8 +54,8 @@ let login = async (req, res) => {
     user.password = undefined;
     res.status(200).send({ user, success: true, token });
   } catch (error) {
-    console.log(error)
-    res.status(500).send({ error ,success:false});
+    console.log(error);
+    res.status(500).send({ error, success: false });
   }
 };
 
@@ -128,25 +131,25 @@ let googleLogin = async (req, res) => {
   }
 };
 
-let verifyToken = async (req, res,next) => {
+let verifyToken = async (req, res, next) => {
   const token = req.headers.authorization
     ? req.headers.authorization.split(" ")[1]
     : null;
-    console.log(token)
+  console.log(token);
   if (!token)
     return res
       .status(404)
       .send({ message: "Unauthorized User! Token not Found", success: false });
 
   try {
-    const decodedToken =  jwt.verify(token, secret);
+    const decodedToken = jwt.verify(token, secret);
     if (!decodedToken)
       return res
         .status(400)
         .send({ message: "Unauthorized User! Token expired", success: false });
     next();
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(500).send({ error });
   }
 };
@@ -165,19 +168,47 @@ let deleteUserAcc = async (req, res) => {
         .status(404)
         .send({ message: "No user against this id", success: false });
     }
-    res.status(200).send({user,success:true});
+    res.status(200).send({ user, success: true });
   } catch (error) {
-    res.status(500).send({ error: error.toString() ,success:false});
+    res.status(500).send({ error: error.toString(), success: false });
   }
 };
 
 let getUser = async (req, res) => {
-  let userId=req.params.userId
+  let userId = req.params.userId;
   try {
-    const user = await Users.findOne({_id:userId});
-    res.status(200).send({user});
+    const user = await Users.findOne({ _id: userId });
+    res.status(200).send({ user });
   } catch (error) {
     res.status(500).send({ error: error.toString() });
+  }
+};
+
+let paymentStripe = async (req, res) => {
+  let { cartItems } = req.body;
+
+  let lineItems = cartItems.map((item) => ({
+    price_data: {
+      currency: "usd",
+      product_data: {
+        name: title,
+      },
+      unit_amount: price,
+    },
+    quantity: qty,
+  }));
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: lineItems,
+      mode: "payment",
+      success_url: process.env.HOST + "/payment-success",
+      cancel_url: process.env.HOST + "/payment-cancel",
+    });
+    res.json({ id: session.id, success: true });
+  } catch (error) {
+    res.status(500).send({ error: error.message, success: false });
   }
 };
 
@@ -189,5 +220,6 @@ module.exports = {
   verifyToken,
   changeUsername,
   deleteUserAcc,
-  getUser
+  getUser,
+  paymentStripe,
 };
