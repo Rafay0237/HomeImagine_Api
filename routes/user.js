@@ -9,7 +9,8 @@ const {
   verifyToken,
   changeUsername,
   deleteUserAcc,
-  paymentStripe
+  paymentStripe,
+  CashOnDelivery
 } = require("../controllers/user");
 
 router.get("/:userId",getUser)
@@ -28,5 +29,6 @@ router.delete("/delete-account/:userId",verifyToken,deleteUserAcc)
 
 router.post("/checkout",verifyToken,paymentStripe)
 
+router.post("/order-save",verifyToken,CashOnDelivery)
 
 module.exports=router

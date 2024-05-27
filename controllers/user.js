@@ -1,10 +1,21 @@
 const Users = require("../models/user");
+const Order = require("../models/order");
+const ShiippingAddress = require("../models/shippingAddress");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const nodemailer=require("nodemailer")
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 const secret = process.env.SECRET;
+
+const transporter=nodemailer.createTransport({
+  service:"gmail",
+  auth:{
+      user:"abdulrafayakb1515@gmail.com",
+      pass :"shpc mwiq xvcp ojml",
+  }
+})
 
 let signup = async (req, res) => {
   let { userName, password, email } = req.body;
@@ -135,7 +146,6 @@ let verifyToken = async (req, res, next) => {
   const token = req.headers.authorization
     ? req.headers.authorization.split(" ")[1]
     : null;
-  console.log(token);
   if (!token)
     return res
       .status(404)
@@ -185,17 +195,17 @@ let getUser = async (req, res) => {
 };
 
 let paymentStripe = async (req, res) => {
-  let { cartItems } = req.body;
-
+  let {userId, cartItems, productsQty, totalAmount}  = req.body;
   let lineItems = cartItems.map((item) => ({
     price_data: {
       currency: "usd",
       product_data: {
-        name: title,
+        name: item.title,
+        images: [item.img],
       },
-      unit_amount: price,
+      unit_amount: item.price,
     },
-    quantity: qty,
+    quantity: item.qty,
   }));
 
   try {
@@ -203,14 +213,63 @@ let paymentStripe = async (req, res) => {
       payment_method_types: ["card"],
       line_items: lineItems,
       mode: "payment",
-      success_url: process.env.HOST + "/payment-success",
-      cancel_url: process.env.HOST + "/payment-cancel",
+      success_url: "http://localhost:5173" + "/payment-success",
+      cancel_url: "http://localhost:5173" + "/payment-cancelled",
     });
-    res.json({ id: session.id, success: true });
+
+   let order= await storeOrder(userId, cartItems, productsQty, totalAmount);
+
+    res.json({ id: session.id, success: true,order });
   } catch (error) {
+    console.log(error.message)
     res.status(500).send({ error: error.message, success: false });
   }
 };
+
+const storeOrder = async (userId, cartItems, productsQty, totalAmount) => {
+  try {
+    const order = new Order({
+      userId: userId,
+      cartItems: cartItems,
+      productsQty: productsQty,
+      totalAmount: totalAmount
+    });
+
+    const orderSaved=await order.save();
+
+    const userDetails = await ShiippingAddress.findOne({userId})
+    
+    const emailresp=await transporter.sendMail({
+      from:"abdulrafayakb1515@gmail.com",
+      to:userDetails.email,
+      subject:"Oder Placed",
+      html: `
+      <p>Hello from Home Imagine, ${userDetails.fullName},</p>
+      <p>Your order will be received in 2-3 days at the following address:</p>
+      <p>${userDetails.address}</p>
+      <p>Thank you for shopping with us!</p>
+      <img src="https://static.vecteezy.com/system/resources/previews/000/101/522/large_2x/vector-delivery-man.jpg" alt="Image">
+    `,
+     })
+  console.log(emailresp)
+
+    return orderSaved
+  } catch (error) {
+    console.error(error.message);
+  }
+};
+
+const CashOnDelivery = async(req,res)=>{
+  let {userId, cartItems, productsQty, totalAmount}  = req.body;
+  let orderSaved=storeOrder(userId, cartItems, productsQty, totalAmount)
+  if(!orderSaved){
+    return res.status(400).send({orderSaved,success:false})
+  }
+  res.status(200).send({order:orderSaved,success:true})
+}
+
+module.exports = storeOrder;
+
 
 module.exports = {
   signup,
@@ -222,4 +281,5 @@ module.exports = {
   deleteUserAcc,
   getUser,
   paymentStripe,
+  CashOnDelivery
 };
