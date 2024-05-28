@@ -229,17 +229,17 @@ let paymentStripe = async (req, res) => {
 const storeOrder = async (userId, cartItems, productsQty, totalAmount) => {
   try {
     const order = new Order({
-      userId: userId,
-      cartItems: cartItems,
-      productsQty: productsQty,
-      totalAmount: totalAmount
+      userId,
+      cartItems,
+      productsQty,
+      totalAmount
     });
 
     const orderSaved=await order.save();
 
     const userDetails = await ShiippingAddress.findOne({userId})
     
-    const emailresp=await transporter.sendMail({
+      await transporter.sendMail({
       from:"abdulrafayakb1515@gmail.com",
       to:userDetails.email,
       subject:"Oder Placed",
@@ -251,7 +251,6 @@ const storeOrder = async (userId, cartItems, productsQty, totalAmount) => {
       <img src="https://static.vecteezy.com/system/resources/previews/000/101/522/large_2x/vector-delivery-man.jpg" alt="Image">
     `,
      })
-  console.log(emailresp)
 
     return orderSaved
   } catch (error) {
@@ -268,7 +267,39 @@ const CashOnDelivery = async(req,res)=>{
   res.status(200).send({order:orderSaved,success:true})
 }
 
-module.exports = storeOrder;
+const getUsersOrders = async (req, res) => {
+  try {
+      const { userId } = req.params;
+
+      const orders = await Order.find({ userId }).exec();
+
+      if (!orders.length) {
+          return res.status(404).json({ found: false, message: 'No orders found for this user' });
+      }
+
+      res.status(200).json({ found: true, orders });
+  } catch (error) {
+      res.status(500).json({ found: false, message: error.message });
+  }
+};
+
+
+const getOrderDetails = async (req, res) => {
+  try {
+      const { id } = req.params;
+
+      const order = await Order.findOne({ _id:id })
+
+      if (!order) {
+          return res.status(404).json({ found: false, message: 'No order found' });
+      }
+
+      res.status(200).json({ found: true, order });
+  } catch (error) {
+      res.status(500).json({ found: false, message: error.message });
+  }
+};
+
 
 
 module.exports = {
@@ -281,5 +312,7 @@ module.exports = {
   deleteUserAcc,
   getUser,
   paymentStripe,
-  CashOnDelivery
+  CashOnDelivery,
+  getUsersOrders,
+  getOrderDetails
 };

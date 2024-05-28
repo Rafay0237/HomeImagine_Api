@@ -1,4 +1,5 @@
 const Products = require("../models/product");
+const Review = require("../models/review");
 const ShippingAddress = require("../models/shippingAddress");
 var validator = require("email-validator");
 
@@ -83,14 +84,27 @@ const getProductsByCategory = async (req, res) => {
 
 const saveShippingAddress = async (req, res) => {
   try {
-    const { address, city, email, fullName, houseNu, phoneNu, userId } = req.body;
+    const { address, city, email, fullName, houseNu, phoneNu, userId } =
+      req.body;
 
-    if (!address || !city || !email || !fullName || !houseNu || !phoneNu || !userId) {
-      return res.status(400).json({ message: 'All fields are required', success: false });
+    if (
+      !address ||
+      !city ||
+      !email ||
+      !fullName ||
+      !houseNu ||
+      !phoneNu ||
+      !userId
+    ) {
+      return res
+        .status(400)
+        .json({ message: "All fields are required", success: false });
     }
 
     if (!validator.validate(email)) {
-      return res.status(400).json({ message: 'Invalid email format', success: false });
+      return res
+        .status(400)
+        .json({ message: "Invalid email format", success: false });
     }
 
     const existingAddress = await ShippingAddress.findOne({ userId });
@@ -102,20 +116,38 @@ const saveShippingAddress = async (req, res) => {
       );
 
       if (!updatedShippingAddress) {
-        return res.status(400).json({ message: 'Failed to update shipping address', success: false });
+        return res
+          .status(400)
+          .json({
+            message: "Failed to update shipping address",
+            success: false,
+          });
       }
 
-      return res.status(200).json({ message: 'Shipping address updated successfully', success: true});
+      return res
+        .status(200)
+        .json({
+          message: "Shipping address updated successfully",
+          success: true,
+        });
     } else {
       const newShippingAddress = new ShippingAddress(req.body);
 
       const savedSuccess = await newShippingAddress.save();
 
       if (!savedSuccess) {
-        return res.status(400).json({ message: 'Failed to save shipping address', success: false });
+        return res
+          .status(400)
+          .json({ message: "Failed to save shipping address", success: false });
       }
 
-      return res.status(201).json({ message: 'Shipping address created successfully', success: true, data: savedSuccess });
+      return res
+        .status(201)
+        .json({
+          message: "Shipping address created successfully",
+          success: true,
+          data: savedSuccess,
+        });
     }
   } catch (error) {
     return res.status(500).json({ message: error.message, success: false });
@@ -128,12 +160,62 @@ const checkShippingAddressExists = async (req, res) => {
     const addressFound = await ShippingAddress.findOne({ userId });
 
     if (!addressFound) {
-      return res.status(404).json({ message: 'Shipping address is required!', found: false });
+      return res
+        .status(404)
+        .json({ message: "Shipping address is required!", found: false });
     }
 
-    return res.status(200).json({ message: 'Shipping address found', found: true});
+    return res
+      .status(200)
+      .json({ message: "Shipping address found", found: true });
   } catch (error) {
-    return res.status(500).json({ message:error.message  ,found:false});
+    return res.status(500).json({ message: error.message, found: false });
+  }
+};
+
+const updateProductRating = async (req, res) => {
+  const { userId, productId, message, rating } = req.body;
+  try {
+    const product = await Products.findById({ _id: productId });
+
+    if (!product) {
+      return res
+        .status(404)
+        .json({ message: "Product not found", updated: false });
+    }
+
+    const existingReview = await Review.findOne({ userId, productId });
+    if (existingReview) {
+      return res.status(400).json({ message: 'You have already Reviewed this Product!', updated: false });
+    }
+
+    const newReviewCount = product.reviewCount + 1;
+    const newRating =
+      (product.rating * product.reviewCount + rating) / newReviewCount;
+
+    product.rating = newRating;
+    product.reviewCount = newReviewCount;
+
+    let updatedProduct = await product.save();
+
+    if (!updatedProduct) {
+      return res
+        .status(205)
+        .json({ message: "Kindly, Try again later!", updated: false });
+    } else {
+      const newReview = new Review({
+        userId,
+        productId,
+        message,
+        rating,
+      });
+
+      await newReview.save();
+    }
+
+    res.status(200).json({ message: "Thanks for the Review!", updated: true });
+  } catch (error) {
+    res.status(500).json({ message: error.message, updated: false });
   }
 };
 
@@ -144,5 +226,6 @@ module.exports = {
   //   deleteProduct,
   getProductsByCategory,
   saveShippingAddress,
-  checkShippingAddressExists
+  checkShippingAddressExists,
+  updateProductRating,
 };
