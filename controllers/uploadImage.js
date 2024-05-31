@@ -1,4 +1,4 @@
-const users = require("../models/user");
+const Users = require("../models/user");
 const Messages = require("../models/message");
 const cloudinary = require("cloudinary").v2;
 const streamifier = require("streamifier");
@@ -12,13 +12,14 @@ cloudinary.config({
 });
 
 const updateUserDp = async (userId, URL) => {
-  const updatedUser = await users.findByIdAndUpdate(
-    userId,
+  const updatedUser = await Users.findByIdAndUpdate(
+    {userId},
     { profilePicture: URL },
-    { new: true }
+    {new:true}
   );
   return updatedUser;
 };
+
 const updateUserChat = async (userId,conversationId, URL) => {
   let toSaveMessage = {
     sender: userId,
@@ -51,7 +52,7 @@ let uploadImageDp = async (req, res) => {
       }
 
       const updatedUser = updateUserDp(userId, result.secure_url);
-
+      
       if (!updatedUser) {
         return res.status(400).send({ error: updatedUser, success: false });
       }
@@ -60,6 +61,8 @@ let uploadImageDp = async (req, res) => {
   );
   streamifier.createReadStream(dp.buffer).pipe(stream);
 };
+
+
 
 let uploadImageChat = async (req, res) => {
   const userId = req.body.id;
