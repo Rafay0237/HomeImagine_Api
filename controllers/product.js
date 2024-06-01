@@ -219,6 +219,39 @@ const updateProductRating = async (req, res) => {
   }
 };
 
+const searchProducts = async (req, res) => {
+  try {
+    const searchQuery = req.params.search || '';
+    const regex = new RegExp(searchQuery, 'i');
+    
+    const products = await Products.find({ 
+      $or: [
+        { title: { $regex: regex } },
+        { desc: { $regex: regex } }
+      ]
+    });
+    
+    if (products.length > 0) {
+      return res.status(200).json({
+        found: true,
+        message: 'Products found',
+        products
+      });
+    } else {
+      return res.status(404).json({
+        found: false,
+        message: 'No products found'
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      found: false,
+      message: 'An error occurred while searching for products',
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
   getProductById,
   //   createProduct,
@@ -228,4 +261,5 @@ module.exports = {
   saveShippingAddress,
   checkShippingAddressExists,
   updateProductRating,
+  searchProducts
 };
