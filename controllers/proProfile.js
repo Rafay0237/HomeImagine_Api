@@ -32,6 +32,7 @@ let getChatBarData = async (req, res) => {
       .send({
         profilePicture: user.profilePicture,
         userName: user.userName,
+        freindId:user._id
       });
   } catch (error) {
     console.log(error);

@@ -11,6 +11,7 @@ const proProfileRoutes = require("./routes/proProfile");
 const proposalRoutes = require("./routes/proposal");
 const chatRoutes = require("./routes/chat");
 const productRoutes = require('./routes/product');
+const contractRoutes =require("./routes/contract")
 
 const app = express();
 const server = http.createServer(app);
@@ -57,6 +58,8 @@ app.use("/proposal", proposalRoutes);
 app.use("/chat", chatRoutes);
 
 app.use('/products', productRoutes);
+
+app.use('/contract', contractRoutes);
 
 // socket server here 
 
