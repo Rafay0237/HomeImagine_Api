@@ -1,4 +1,5 @@
 const Contract=require("../models/contract")
+const Payment = require('../models/payment');
 
 
 let saveContract=async(req,res)=>{
@@ -44,7 +45,7 @@ let deleteContract = async (req, res) => {
       const deletedContract = await Contract.findByIdAndDelete(contractId);
   
       if (!deletedContract) {
-        return res.status(404).json({ message: "Contract not found",delted:false });
+        return res.status(404).json({ message: "Contract not found",deleted:false });
       }
 
       res.status(200).json({ message: "Contract deleted successfully", deleted:true });
@@ -53,5 +54,123 @@ let deleteContract = async (req, res) => {
     }
   };
 
+  let getSentContractsClient = async (req, res) => {
+    const { clientId } = req.params;
+    try {
+        const contracts = await Contract.find({ clientId, accepted: false });
+      
+      if (!contracts ||contracts.length===0) {
+        return res.status(404).json({ message: 'No Contracts found' ,success:false});
+      }
+      res.status(200).json({contracts,success:true});
+    } catch (error) {
+      res.status(500).json({ message: error.message ,success:false});
+    }
+  };
 
-  module.exports={saveContract,deleteContract}
+
+  let getSentContractsPro = async (req, res) => {
+    const { proId } = req.params;
+    try {
+        const contracts = await Contract.find({ proId, accepted: false });
+      
+      if (!contracts ||contracts.length===0) {
+        return res.status(404).json({ message: 'No Contracts found' ,success:false});
+      }
+      res.status(200).json({contracts,success:true});
+    } catch (error) {
+      res.status(500).json({ message: error.message ,success:false});
+    }
+  };
+  
+
+  let getContract = async (req, res) => {
+    const { contractId } = req.params;
+    try {
+      const contract = await Contract.findById(contractId);
+      if (!contract) {
+        return res.status(404).json({ message: 'Contract not found' ,success:false});
+      }
+      res.status(200).json({ contract ,success:true});
+    } catch (error) {
+      res.status(500).json({ message: error.message ,success:false});
+    }
+  };
+  
+
+  let acceptContract = async (req, res) => {
+    const { contractId } = req.params;
+    try {
+      const contract = await Contract.findByIdAndUpdate(
+        contractId,
+        { accepted: true },
+        { new: true }
+      );
+      if (!contract) {
+        return res.status(404).json({ message: 'Contract not found',success:false });
+      }
+      res.status(200).json({message: 'Contract Accepted',success:true});
+    } catch (error) {
+      res.status(500).json({ message: error.message, success:false });
+    }
+  };
+
+  let getOnGoingContractsClient = async (req, res) => {
+    const { clientId } = req.params;
+    try {
+        const contracts = await Contract.find({ clientId, accepted: true });
+      if (!contracts ||contracts.length===0) {
+        return res.status(404).json({ message: 'No Contracts found' ,success:false});
+      }
+      res.status(200).json({contracts,success:true});
+    } catch (error) {
+      res.status(500).json({ message: error.message ,success:false});
+    }
+  };
+
+  let getOnGoingContractsPro = async (req, res) => {
+    const { proId } = req.params;
+    try {
+        const contracts = await Contract.find({ proId, accepted: true });
+      if (!contracts ||contracts.length===0) {
+        return res.status(404).json({ message: 'No Contracts found' ,success:false});
+      }
+      res.status(200).json({contracts,success:true});
+    } catch (error) {
+      res.status(500).json({ message: error.message ,success:false});
+    }
+  };
+
+  const getPaymentsHistoryClient = async (req, res) => {
+    const { userId } = req.params;
+  
+    try {
+      const payments = await Payment.find({ userId });
+      if (!payments) {
+        return res.status(404).send({ message: "No payments found for this user", success: false });
+      }
+      res.status(200).json({ payments, success: true });
+    } catch (error) {
+      res.status(500).send({ message: error.message, success: false });
+    }
+  };
+
+
+  const getPaymentsHistoryPro = async (req, res) => {
+    const { proId } = req.params;
+  
+    try {
+      const payments = await Payment.find({ proId });
+      if (!payments) {
+        return res.status(404).send({ message: "No payments found for this user", success: false });
+      }
+      res.status(200).json({ payments, success: true });
+    } catch (error) {
+      res.status(500).send({ message: error.message, success: false });
+    }
+  };
+
+  module.exports={saveContract,deleteContract,acceptContract,
+    getContract,getSentContractsPro,getOnGoingContractsPro,
+    getSentContractsClient,getOnGoingContractsClient 
+  ,getPaymentsHistoryClient,getPaymentsHistoryPro}

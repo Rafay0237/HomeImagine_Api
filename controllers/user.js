@@ -1,6 +1,6 @@
 const Users = require("../models/user");
 const Order = require("../models/order");
-const ShiippingAddress = require("../models/shippingAddress");
+const ShippingAddress = require("../models/shippingAddress");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
@@ -194,7 +194,8 @@ let getUser = async (req, res) => {
   }
 };
 
-let paymentStripe = async (req, res) => {
+
+let paymentCartStripe = async (req, res) => {
   let {userId, cartItems, productsQty, totalAmount}  = req.body;
   let lineItems = cartItems.map((item) => ({
     price_data: {
@@ -222,9 +223,58 @@ let paymentStripe = async (req, res) => {
     res.json({ id: session.id, success: true,order });
   } catch (error) {
     console.log(error.message)
-    res.status(500).send({ error: error.message, success: false });
+    res.status(500).send({ message: error.message, success: false });
   }
 };
+
+
+let paymentProStripe = async (req, res) => {
+  let {totalAmount,proId,contractId,userId}  = req.body;
+  try{
+  const pro = await Users.findOne({_id:proId})
+  if(!pro){
+  return res.status(400).send({ message:"Cannot Find Pro", success: false });
+  }
+
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    line_items: [
+      {
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: `Contract Payment for Pro ID: ${pro.userName}`,
+            images: [pro.profilePicture]
+          },
+          unit_amount: totalAmount*100,
+        },
+        quantity: 1,
+      },
+    ],
+    mode: "payment",
+    success_url: "http://localhost:5173/payment-success",
+    cancel_url: "http://localhost:5173/payment-cancelled",
+  });
+
+  const payment = new Payment({
+    contractId,
+    totalAmount,
+    ratingGiven:false,
+    proName:pro.userName,
+    proDp:pro.profilePicture,
+    userId
+  });
+  
+   await payment.save()
+
+  res.json({ id: session.id,message:"Payment Process Completed", success: true });
+
+  } catch (error) {
+    console.log(error.message)
+    res.status(500).send({ message: error.message, success: false });
+  }
+};
+
 
 const storeOrder = async (userId, cartItems, productsQty, totalAmount) => {
   try {
@@ -237,7 +287,7 @@ const storeOrder = async (userId, cartItems, productsQty, totalAmount) => {
 
     const orderSaved=await order.save();
 
-    const userDetails = await ShiippingAddress.findOne({userId})
+    const userDetails = await ShippingAddress.findOne({userId})
     
       await transporter.sendMail({
       from:"abdulrafayakb1515@gmail.com",
@@ -258,6 +308,7 @@ const storeOrder = async (userId, cartItems, productsQty, totalAmount) => {
   }
 };
 
+
 const CashOnDelivery = async(req,res)=>{
   let {userId, cartItems, productsQty, totalAmount}  = req.body;
   let orderSaved=storeOrder(userId, cartItems, productsQty, totalAmount)
@@ -266,6 +317,7 @@ const CashOnDelivery = async(req,res)=>{
   }
   res.status(200).send({order:orderSaved,success:true})
 }
+
 
 const getUsersOrders = async (req, res) => {
   try {
@@ -301,7 +353,6 @@ const getOrderDetails = async (req, res) => {
 };
 
 
-
 module.exports = {
   signup,
   login,
@@ -311,8 +362,9 @@ module.exports = {
   changeUsername,
   deleteUserAcc,
   getUser,
-  paymentStripe,
+  paymentCartStripe,
   CashOnDelivery,
   getUsersOrders,
-  getOrderDetails
+  getOrderDetails,
+  paymentProStripe
 };

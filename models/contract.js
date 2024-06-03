@@ -33,7 +33,8 @@ const contractSchema = new Schema(
       paymentOnTermination: { type: String, required: true },
     },
     accepted:{
-      type:Boolean
+      type:Boolean,
+      default:false
     }
   },
   {

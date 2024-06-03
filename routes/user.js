@@ -9,10 +9,11 @@ const {
   verifyToken,
   changeUsername,
   deleteUserAcc,
-  paymentStripe,
+  paymentCartStripe,
   CashOnDelivery,
   getUsersOrders,
-  getOrderDetails
+  getOrderDetails,
+  paymentProStripe,
 } = require("../controllers/user");
 
 router.get("/:userId",getUser)
@@ -29,12 +30,15 @@ router.post("/change-username",verifyToken,changeUsername)
 
 router.delete("/delete-account/:userId",verifyToken,deleteUserAcc)
 
-router.post("/checkout",verifyToken,paymentStripe)
+router.post("/checkout",verifyToken,paymentCartStripe)
+
+router.post("/pro-payment",verifyToken,paymentProStripe)
 
 router.post("/order-save",verifyToken,CashOnDelivery)
 
 router.get("/orders/:userId",getUsersOrders)
 
 router.get("/order-detail/:id",getOrderDetails)
+
 
 module.exports=router
