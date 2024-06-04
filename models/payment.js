@@ -9,6 +9,10 @@ const paymentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  proId: {
+    type: String,
+    required: true,
+  },
    proName: {
     type: String,
     required:true

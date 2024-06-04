@@ -35,6 +35,10 @@ const contractSchema = new Schema(
     accepted:{
       type:Boolean,
       default:false
+    },
+    completed:{
+      type:Boolean,
+      default:false
     }
   },
   {

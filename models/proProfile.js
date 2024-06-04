@@ -41,10 +41,10 @@ insta:{
 facebook:{
     type:String,
 },
-rating:{
+reviews:{
     type:Object,
     default:{
-        stars:0,
+        rating:0,
         reviewCount:0
     }
 },

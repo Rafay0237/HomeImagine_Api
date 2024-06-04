@@ -3,7 +3,9 @@ const router = express.Router();
 
 const {saveContract,deleteContract,getContract,getSentContractsPro,getOnGoingContractsPro,
     getSentContractsClient,getOnGoingContractsClient,acceptContract
-,getPaymentsHistoryClient,getPaymentsHistoryPro} =require("../controllers/contract")
+,getPaymentsHistoryClient,getPaymentsHistoryPro,
+getPaymentData,
+updateContractRating} =require("../controllers/contract")
 
 
 
@@ -23,9 +25,13 @@ router.put('/:contractId', acceptContract);
 
 router.delete('/:id', deleteContract); 
 
-router.get("/payment-history-pro/:proId",getOnGoingContractsPro)
+router.get("/payment-history-pro/:proId",getPaymentsHistoryPro)
 
 router.get("/payment-history-client/:userId",getPaymentsHistoryClient)
+
+router.get("/payment/:paymentId",getPaymentData)
+
+router.post("/review",updateContractRating)
 
 
 module.exports = router;

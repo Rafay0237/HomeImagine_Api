@@ -1,5 +1,7 @@
 const Users = require("../models/user");
 const Order = require("../models/order");
+const Contract = require("../models/contract");
+const Payment =require("../models/payment")
 const ShippingAddress = require("../models/shippingAddress");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -262,10 +264,13 @@ let paymentProStripe = async (req, res) => {
     ratingGiven:false,
     proName:pro.userName,
     proDp:pro.profilePicture,
+    proId:pro._id,
     userId
   });
   
    await payment.save()
+
+   await Contract.findByIdAndDelete(contractId);
 
   res.json({ id: session.id,message:"Payment Process Completed", success: true });
 
