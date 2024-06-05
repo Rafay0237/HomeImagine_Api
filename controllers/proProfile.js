@@ -1,5 +1,6 @@
 const proProfile = require("../models/proProfile");
 const Users = require("../models/user");
+const Project =require ("../models/project")
 
 let buildProfile = async (req, res) => {
   let { userId } = req.body;
@@ -46,10 +47,10 @@ let getProfile = async (req, res) => {
   try {
     let userProfile = await proProfile.findOne({ userId });
     if (!userProfile) return res.status(200).send({ found: false });
-    return res.status(200).send({ userProfile });
+    return res.status(200).send({ userProfile ,found:true});
   } catch (error) {
     console.log(error);
-    res.status(500).send({ error: error.toString() });
+    res.status(500).send({ message: error.toString(),found:false });
   }
 };
 
@@ -60,7 +61,7 @@ let getProfiles = async (req, res) => {
     if (!userProfiles || userProfiles.length === 0)
       return res.status(200).send({ found: false });
 
-    return res.status(200).send({ userProfiles, found: true });
+     res.status(200).send({ userProfiles, found: true });
   } catch (error) {
     res.status(500).send({ error: error.toString(), found: false });
   }
@@ -98,11 +99,28 @@ let updateProfile = async (req, res) => {
   }
 };
 
+let getProjects = async (req, res) => {
+const { proId } = req.params;
+
+  try {
+    const projects = await Project.find({ proId});
+    if (projects) {
+      res.json({ found: true, projects });
+    } else {
+      res.json({ found: false ,message:"No projects are posted by this pro" });
+    }
+  } catch (error) {
+    res.status(500).json({ found: false, message: error.message });
+  }
+}
+
+
 module.exports = {
   buildProfile,
   getProfile,
   getProfiles,
   deleteProfile,
   updateProfile,
-  getChatBarData
+  getChatBarData,
+  getProjects
 };

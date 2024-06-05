@@ -1,5 +1,6 @@
 const Users = require("../models/user");
 const Messages = require("../models/message");
+const Project = require("../models/project");
 const cloudinary = require("cloudinary").v2;
 const streamifier = require("streamifier");
 require("dotenv").config();
@@ -62,8 +63,6 @@ let uploadImageDp = async (req, res) => {
   streamifier.createReadStream(dp.buffer).pipe(stream);
 };
 
-
-
 let uploadImageChat = async (req, res) => {
   const userId = req.body.id;
   const conversationId=req.body.conversationId;
@@ -95,4 +94,55 @@ let uploadImageChat = async (req, res) => {
   streamifier.createReadStream(dp.buffer).pipe(stream);
 };
 
-module.exports = { uploadImageDp ,uploadImageChat};
+const postProject = async (proId, name, location, desc, URL) => {
+  let toSaveProject = {
+    proId,
+    name,
+    location,
+    img: URL,
+    desc
+  };
+
+  const project = new Project(toSaveProject);
+
+  const savedProject = await project.save();
+  return savedProject;
+};
+
+let uploadImageAndProject = async (req, res) => {
+  const { proId, name, location, desc } = req.body;
+  const image = req.files["image"][0];
+  
+  if( !name|| !proId|| !location|| !desc || !image){
+    return res.status(203).json({ message: "All Feilds Are Required!", success: false });
+  }
+
+  const stream = cloudinary.uploader.upload_stream(
+    {
+      folder: "projects",
+    },
+    async (error, result) => {
+      if (error) {
+        console.error("Error processing file upload:", error);
+        return res.status(500).json({
+          error: error.message,
+          success: false,
+        });
+      }
+
+      try {
+        const updatedProject = await postProject(proId, name, location, desc, result.secure_url);
+
+        if (!updatedProject) {
+          return res.status(400).send({ error: updatedProject, success: false });
+        }
+        res.status(200).json({ img: result.secure_url, success: true });
+      } catch (err) {
+        res.status(500).json({ error: err.message, success: false });
+      }
+    }
+  );
+  streamifier.createReadStream(image.buffer).pipe(stream);
+};
+
+module.exports = { uploadImageDp ,uploadImageChat,uploadImageAndProject};

@@ -233,9 +233,15 @@ let paymentCartStripe = async (req, res) => {
 let paymentProStripe = async (req, res) => {
   let {totalAmount,proId,contractId,userId}  = req.body;
   try{
+
   const pro = await Users.findOne({_id:proId})
   if(!pro){
   return res.status(400).send({ message:"Cannot Find Pro", success: false });
+  }
+
+  const user = await Users.findOne({_id:proId})
+  if(!user){
+  return res.status(400).send({ message:"Cannot Find User", success: false });
   }
 
   const session = await stripe.checkout.sessions.create({
@@ -265,7 +271,9 @@ let paymentProStripe = async (req, res) => {
     proName:pro.userName,
     proDp:pro.profilePicture,
     proId:pro._id,
-    userId
+    userId,
+    userDp:user.profilePicture,
+    userName:user.userName
   });
   
    await payment.save()

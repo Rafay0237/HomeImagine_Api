@@ -1,37 +1,46 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const {saveContract,deleteContract,getContract,getSentContractsPro,getOnGoingContractsPro,
-    getSentContractsClient,getOnGoingContractsClient,acceptContract
-,getPaymentsHistoryClient,getPaymentsHistoryPro,
-getPaymentData,
-updateContractRating} =require("../controllers/contract")
+const {
+  saveContract,
+  deleteContract,
+  getContract,
+  getSentContractsPro,
+  getOnGoingContractsPro,
+  getSentContractsClient,
+  getOnGoingContractsClient,
+  acceptContract,
+  getPaymentsHistoryClient,
+  getPaymentsHistoryPro,
+  getPaymentData,
+  updateContractRating,
+  getProReviews,
+} = require("../controllers/contract");
 
+router.post("/create/", saveContract);
 
+router.get("/:contractId", getContract);
 
-router.post('/create/', saveContract); 
+router.get("/sent-pro/:proId", getSentContractsPro);
 
-router.get('/:contractId', getContract); 
+router.get("/sent-client/:clientId", getSentContractsClient);
 
-router.get('/sent-pro/:proId', getSentContractsPro); 
+router.get("/ongoing-pro/:proId", getOnGoingContractsPro);
 
-router.get('/sent-client/:clientId', getSentContractsClient); 
+router.get("/ongoing-client/:clientId", getOnGoingContractsClient);
 
-router.get('/ongoing-pro/:proId', getOnGoingContractsPro); 
+router.put("/:contractId", acceptContract);
 
-router.get('/ongoing-client/:clientId', getOnGoingContractsClient); 
+router.delete("/:id", deleteContract);
 
-router.put('/:contractId', acceptContract); 
+router.get("/payment-history-pro/:proId", getPaymentsHistoryPro);
 
-router.delete('/:id', deleteContract); 
+router.get("/payment-history-client/:userId", getPaymentsHistoryClient);
 
-router.get("/payment-history-pro/:proId",getPaymentsHistoryPro)
+router.get("/payment/:paymentId", getPaymentData);
 
-router.get("/payment-history-client/:userId",getPaymentsHistoryClient)
+router.post("/review", updateContractRating);
 
-router.get("/payment/:paymentId",getPaymentData)
-
-router.post("/review",updateContractRating)
-
+router.get("/reviews/:proId", getProReviews);
 
 module.exports = router;

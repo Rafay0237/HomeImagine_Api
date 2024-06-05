@@ -220,6 +220,10 @@ const getPaymentData = async (req, res) => {
 
 const updateContractRating=async(req,res)=>{
   const { userId, message, rating ,paymentId} = req.body;
+
+  if (!message) {
+    return res.status(400).json({ message: "Message cannot be empty.", updated: false });
+  }
   
   try {
 
@@ -254,7 +258,7 @@ const updateContractRating=async(req,res)=>{
     } else {
       const newReview = new ReviewContract({
         userId,
-        proId:pro._id,
+        proId:pro.userId,
         contractId:payment.contractId,
         userDp:user.profilePicture,
         userName:user.userName,
@@ -276,6 +280,21 @@ const updateContractRating=async(req,res)=>{
   }
 }
 
+const getProReviews=async(req,res)=>{
+  const {proId} =req.params
+
+  try {
+    const reviews = await ReviewContract.find({ proId });
+    
+    if (!reviews) {
+      return res.status(404).json({ success: false, message: 'No reviews found for this professional.' });
+    } 
+       res.status(200).json({ success: true, reviews });
+    
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+}
 
 module.exports = {
   saveContract,
@@ -289,5 +308,6 @@ module.exports = {
   getPaymentsHistoryClient,
   getPaymentsHistoryPro,
   getPaymentData,
-  updateContractRating
+  updateContractRating,
+  getProReviews
 };

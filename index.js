@@ -126,7 +126,6 @@ io.on("connection", (socket) => {
   socket.on("messageSeen",({conversationId,sender})=>{
     const receiver=getUser(sender)
     if(!receiver) return
-    console.log(receiver.userId,sender)
     socket.to(receiver.socketId).emit("updateMessageSeen",{
       conversationId,
       sender
