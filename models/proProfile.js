@@ -50,11 +50,11 @@ reviews:{
 },
 bgImg:{
     type:String,
-    default:"https://www.houzz.com/pro/webuser-356709784/jason-katsikas"
+    default:"https://th.bing.com/th/id/OIP.3Lkn2sEuKOEjXeEufqPItAHaEq?w=293&h=185&c=7&r=0&o=5&dpr=1.5&pid=1.7"
 },
 sliderImages:{
     type:Array,
-    default:["https://www.houzz.com/pro/webuser-356709784/jason-katsikas"]
+    default:["https://st.hzcdn.com/fimgs/c4b1ab2d050a08b2_6178-w794-h336-b2-p0--.jpg"]
 },
 logo:{
     type:String,

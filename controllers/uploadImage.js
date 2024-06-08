@@ -1,6 +1,7 @@
 const Users = require("../models/user");
 const Messages = require("../models/message");
 const Project = require("../models/project");
+const proProfile =require("../models/proProfile")
 const cloudinary = require("cloudinary").v2;
 const streamifier = require("streamifier");
 require("dotenv").config();
@@ -145,4 +146,54 @@ let uploadImageAndProject = async (req, res) => {
   streamifier.createReadStream(image.buffer).pipe(stream);
 };
 
-module.exports = { uploadImageDp ,uploadImageChat,uploadImageAndProject};
+const updateProSliderImage = async (proId, URL) => {
+  const pro = await proProfile.findOne({userId:proId})
+  if (!pro) {
+    throw new Error(`Profile with userId ${proId} not found.`);
+  }
+ 
+  pro.sliderImages.push(URL)
+
+  const savedProfile = await pro.save();
+  return savedProfile;
+};
+
+let uploadSliderImage = async (req, res) => {
+  const { proId} = req.body;
+  const image = req.files["image"][0];
+  
+  if(!proId){
+    return res.status(203).json({ message: "All Feilds Are Required!", success: false });
+  }
+
+  const stream = cloudinary.uploader.upload_stream(
+    {
+      folder: "sliderImages",
+    },
+    async (error, result) => {
+      if (error) {
+        console.error("Error processing file upload:", error);
+        return res.status(500).json({
+          message: error.message,
+          success: false,
+        });
+      }
+
+      try {
+        const updatedProfile = await updateProSliderImage(proId, result.secure_url);
+
+        if (!updatedProfile) {
+          return res.status(400).send({ message: updatedProfile, success: false });
+        }
+        res.status(200).json({ img: result.secure_url, success: true });
+      } catch (err) {
+        res.status(500).json({ message: err.message, success: false });
+      }
+    }
+  );
+  streamifier.createReadStream(image.buffer).pipe(stream);
+};
+
+
+
+module.exports = { uploadImageDp ,uploadImageChat,uploadImageAndProject,uploadSliderImage};

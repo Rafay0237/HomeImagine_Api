@@ -114,6 +114,45 @@ const { proId } = req.params;
   }
 }
 
+let getSliderImages = async (req, res) => {
+try {
+  const { proId } = req.params;
+  const profile = await proProfile.findOne({userId:proId})
+  if (!profile) {
+    return res.status(404).json({ message: 'Profile not found' ,success:false });
+  }
+  res.status(200).json({sliderImages:profile.sliderImages ,success:true});
+} catch (error) {
+  res.status(500).json({ message: error.message ,success:false });
+}
+};
+
+let deleteSliderImages = async (req, res) => {
+const { proId, index } = req.params;
+
+    try {
+        const imageIndex = parseInt(index);
+
+        const profile = await proProfile.findOne({userId:proId});
+
+        if (!profile) {
+            return res.status(404).json({ message: 'Profile not found',deleted:false });
+        }
+
+        if (imageIndex < 0 || imageIndex >= profile.sliderImages.length) {
+            return res.status(400).json({ message: 'Index out of bounds',deleted:false  });
+        }
+
+        profile.sliderImages.splice(imageIndex, 1);
+
+        await profile.save();
+
+        res.status(200).json({ message: 'Image deleted successfully',deleted:true });
+    } catch (error) {
+        console.error('Error deleting image:', error);
+        res.status(500).json({ message: error.message,deleted:false });
+    }
+  }
 
 module.exports = {
   buildProfile,
@@ -122,5 +161,7 @@ module.exports = {
   deleteProfile,
   updateProfile,
   getChatBarData,
-  getProjects
+  getProjects,
+  getSliderImages,
+  deleteSliderImages
 };
