@@ -53,7 +53,6 @@ let login = async (req, res) => {
         .send({ message: "No email id exists with this name", success: false });
 
     let verifyPassword = await bcrypt.compare(password, user.password);
-    console.log(verifyPassword);
     if (!verifyPassword)
       return res
         .status(400)
