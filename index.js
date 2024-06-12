@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const http = require("http");
+// const http = require("http");
 const bodyParser = require('body-parser');
 const cors = require("cors");
 require("dotenv").config();
@@ -14,8 +14,8 @@ const productRoutes = require('./routes/product');
 const contractRoutes =require("./routes/contract")
 
 const app = express();
-const server = http.createServer(app);
-const { Server } = require("socket.io");
+// const server = http.createServer(app);
+// const { Server } = require("socket.io");
 
 app.use(
   cors({
@@ -63,74 +63,74 @@ app.use('/contract', contractRoutes);
 
 // socket server here 
 
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-  },
-});
+// const io = new Server(server, {
+//   cors: {
+//     origin: "*",
+//     methods: ["GET", "POST"],
+//   },
+// });
 
-server.listen(8080, () => {
-  console.log("listening on *:8080");
-});
+// server.listen(8080, () => {
+//   console.log("listening on *:8080");
+// });
 
-let users = [];
+// let users = [];
 
-const addUsers = (userId, socketId) => {
-  !users.some((user) => user.userId === userId) &&
-    users.push({ userId, socketId });
-};
+// const addUsers = (userId, socketId) => {
+//   !users.some((user) => user.userId === userId) &&
+//     users.push({ userId, socketId });
+// };
 
-const removeUsers = (socketId) => {
-  users = users.filter((user) => user.socketId !== socketId);
-};
+// const removeUsers = (socketId) => {
+//   users = users.filter((user) => user.socketId !== socketId);
+// };
 
-const getUser = (userId) => {
-  return users.find((user) => user.userId === userId);
-};
+// const getUser = (userId) => {
+//   return users.find((user) => user.userId === userId);
+// };
 
-io.on("connection", (socket) => {
-  console.log("User Connected");
+// io.on("connection", (socket) => {
+//   console.log("User Connected");
 
-  socket.on("disconnect", () => {
-    removeUsers(socket.id);
-    console.log("User Disconnected");
-    io.emit("getUsers", users);
-  });
+//   socket.on("disconnect", () => {
+//     removeUsers(socket.id);
+//     console.log("User Disconnected");
+//     io.emit("getUsers", users);
+//   });
 
-  socket.on("addUser", (userId) => {
-    addUsers(userId, socket.id);
-    io.emit("getUsers", users);
-  });
+//   socket.on("addUser", (userId) => {
+//     addUsers(userId, socket.id);
+//     io.emit("getUsers", users);
+//   });
 
-  socket.emit("getUsers", users);
+//   socket.emit("getUsers", users);
 
-  socket.on("sendMessage", ({ senderId, receiverId, text }) => {
-    const receiver = getUser(receiverId);
-    if (!receiver) return;
-    socket.to(receiver.socketId).emit("getMessage", {
-      senderId,
-      text
-    });
-  });
+//   socket.on("sendMessage", ({ senderId, receiverId, text }) => {
+//     const receiver = getUser(receiverId);
+//     if (!receiver) return;
+//     socket.to(receiver.socketId).emit("getMessage", {
+//       senderId,
+//       text
+//     });
+//   });
 
-  socket.on("sendImage", ({ senderId, receiverId, img }) => {
-    const receiver = getUser(receiverId);
-    if (!receiver) return;
-    socket.to(receiver.socketId).emit("getImage", {
-      senderId,
-      img
-    });
-  });
+//   socket.on("sendImage", ({ senderId, receiverId, img }) => {
+//     const receiver = getUser(receiverId);
+//     if (!receiver) return;
+//     socket.to(receiver.socketId).emit("getImage", {
+//       senderId,
+//       img
+//     });
+//   });
 
-  socket.on("messageSeen",({conversationId,sender})=>{
-    const receiver=getUser(sender)
-    if(!receiver) return
-    socket.to(receiver.socketId).emit("updateMessageSeen",{
-      conversationId,
-      sender
-    })
-  })
+//   socket.on("messageSeen",({conversationId,sender})=>{
+//     const receiver=getUser(sender)
+//     if(!receiver) return
+//     socket.to(receiver.socketId).emit("updateMessageSeen",{
+//       conversationId,
+//       sender
+//     })
+//   })
 
-  console.log(users);
-});
+//   console.log(users);
+// });
