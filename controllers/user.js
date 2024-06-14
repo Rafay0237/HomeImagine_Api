@@ -80,7 +80,7 @@ let changePassword = async (req, res) => {
     return res.status(400).send({ message: "Current Password is Inavlid!" });
 
   let hashedPassword = bcrypt.hash(newPassword, 9);
-  await updateOne({ email }, { $set: { password: hashedPassword } });
+  await Users.updateOne({ email }, { $set: { password: hashedPassword } });
   res
     .status(200)
     .send({ message: "Password is Updated Successfully!", success: true });
