@@ -116,7 +116,7 @@ let changeUsername = async (req, res) => {
 let googleLogin = async (req, res) => {
   const { userName, email, photo } = req.body;
   try {
-    const user = await findOne({ email });
+    const user = await Users.findOne({ email });
     if (user) {
       const token = jwt.sign({ id: user._id, role: "user" }, secret, {
         algorithm: "HS256",
@@ -125,7 +125,7 @@ let googleLogin = async (req, res) => {
       user.password = undefined;
       res
         .status(200)
-        .send({ message: "Logged in with Google", success: true, token });
+        .send({user, message: "Logged in with Google", success: true, token });
     } else {
       let randomPassword = Math.random().toString(36).slice(-8);
       let hashedPassowrd = await bcrypt.hash(randomPassword, 9);
@@ -136,10 +136,10 @@ let googleLogin = async (req, res) => {
         profilePicture: photo,
       });
       await user.save();
-      res.status(200).send({ message: "Signed Up with Google", success: true });
+      res.status(200).send({ user,message: "Signed Up with Google", success: true });
     }
   } catch (error) {
-    res.status(500).send({ error });
+    res.status(500).send({ message:error.message ,success:false});
   }
 };
 
