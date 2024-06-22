@@ -10,7 +10,8 @@ const {
   getChatBarData,
   getProjects,
   getSliderImages,
-  deleteSliderImages
+  deleteSliderImages,
+  deleteProject
 } = require("../controllers/proProfile");
 
 router.post("/build-profile", buildProfile);
@@ -26,6 +27,8 @@ router.put("/update-profile/", updateProfile);
 router.delete("/delete-profile/:userId", deleteProfile);
 
 router.get("/project/:proId", getProjects);
+
+router.delete("/project/:projectId", deleteProject);
 
 router.get("/sliderImages/:proId", getSliderImages);
 

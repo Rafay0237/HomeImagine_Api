@@ -101,18 +101,32 @@ let updateProfile = async (req, res) => {
 
 let getProjects = async (req, res) => {
 const { proId } = req.params;
-
   try {
     const projects = await Project.find({ proId});
-    if (projects) {
+    if (projects && projects.length!==0) {
       res.json({ found: true, projects });
     } else {
-      res.json({ found: false ,message:"No projects are posted by this pro" });
+      res.json({ found: false ,message:"No projects are posted by you currently" });
     }
   } catch (error) {
     res.status(500).json({ found: false, message: error.message });
   }
 }
+
+let deleteProject = async (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const deletedProject = await Project.findByIdAndDelete( projectId );
+    if (deletedProject) {
+      res.json({ deleted: true, message: "Project deleted successfully" });
+    } else {
+      res.json({ deleted: false, message: "Project not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ deleted: false, message: error.message });
+  }
+};
+
 
 let getSliderImages = async (req, res) => {
 try {
@@ -163,5 +177,6 @@ module.exports = {
   getChatBarData,
   getProjects,
   getSliderImages,
-  deleteSliderImages
+  deleteSliderImages,
+  deleteProject
 };
