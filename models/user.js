@@ -13,7 +13,7 @@ const userSchema= new mongoose.Schema({
     },
     password:{
         type: String,
-        min:[8,"Too Short Password"],
+        min:[6,"Too Short Password"],
         max:[20,"Too long Password"]
     },
     profilePicture:{

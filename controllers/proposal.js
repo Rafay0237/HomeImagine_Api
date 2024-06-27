@@ -3,8 +3,11 @@ const Conversations =require("../models/conversation");
 
 let sendProposal = async (req, res) => {
   let {senderId,userId}=req.body
+  if(!userId || !senderId){
+  return res.status(200).send({message:"Cannot get your Id!"})
+  }
   try {
-    let proposalExists= Proposals.findOne({
+    let proposalExists=await Proposals.findOne({
       $and: [
         { senderId: senderId },
         { userId: userId }

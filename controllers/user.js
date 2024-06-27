@@ -74,12 +74,13 @@ let login = async (req, res) => {
 let changePassword = async (req, res) => {
   let { email, password, newPassword } = req.body;
   const user = await Users.findOne({ email });
-  if (user) return res.status(404).send({ message: "user not found!" });
-  let verifyPassword = bcrypt.compare(password, user.password);
-  if (!verifyPassword)
-    return res.status(400).send({ message: "Current Password is Inavlid!" });
+  if (!user) return res.status(404).send({ message: "user not found!",success:false });
 
-  let hashedPassword = bcrypt.hash(newPassword, 9);
+  let verifyPassword =await bcrypt.compare(password, user.password);
+  if (!verifyPassword)
+    return res.status(400).send({ message: "Current Password is Inavlid!" ,success:false});
+
+  let hashedPassword =await bcrypt.hash(newPassword, 9);
   await Users.updateOne({ email }, { $set: { password: hashedPassword } });
   res
     .status(200)
@@ -150,18 +151,18 @@ let verifyToken = async (req, res, next) => {
   if (!token)
     return res
       .status(404)
-      .send({ message: "Unauthorized User! Token not Found", success: false });
+      .send({ message: "Your Session has expired, Login to continue", expired: true });
 
   try {
     const decodedToken = jwt.verify(token, secret);
     if (!decodedToken)
       return res
         .status(400)
-        .send({ message: "Unauthorized User! Token expired", success: false });
+        .send({ message: "Your Session has expired, Login to continue", expired: true });
     next();
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ error });
+    return res.status(500).send({ message:error.message ,expired: true});
   }
 };
 
