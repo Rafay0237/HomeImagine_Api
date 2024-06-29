@@ -14,13 +14,13 @@ let sendProposal = async (req, res) => {
     ]
     })
     if(proposalExists)
-    return res.status(200).send({message:"Proposal is already sent!"})
+    return res.status(200).send({message:"Proposal is already sent!",proposalExists})
 
     let newProposal = await new Proposals(req.body);
-    await newProposal.save();
-    return res.status(200).send({ message: "Proposal Sent!" });
+    let saved =await newProposal.save(); 
+    return res.status(200).send({ message: "Proposal Sent!",saved });
   } catch (err) {
-    console.log(err);
+    console.log(err); 
     return res.status(500).send({ error: err.toString() });
   }
 };
