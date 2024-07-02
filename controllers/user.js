@@ -324,11 +324,11 @@ const storeOrder = async (userId, cartItems, productsQty, totalAmount) => {
 
 const CashOnDelivery = async(req,res)=>{
   let {userId, cartItems, productsQty, totalAmount}  = req.body;
-  let orderSaved=storeOrder(userId, cartItems, productsQty, totalAmount)
-  if(!orderSaved){
-    return res.status(400).send({orderSaved,success:false})
-  }
-  res.status(200).send({order:orderSaved,success:true})
+    let orderSaved=await storeOrder(userId, cartItems, productsQty, totalAmount)
+    if(!orderSaved){
+      return res.status(400).send({orderSaved,success:false})
+    }
+    res.status(200).send({order:orderSaved,success:true})
 }
 
 
