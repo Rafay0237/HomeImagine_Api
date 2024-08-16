@@ -43,7 +43,7 @@ async function dbConnection() {
 
 dbConnection().catch((error) => console.log(error));
 
-server.listen(PORT, HOST, () => {
+app.listen(PORT, HOST, () => {
   console.log(`Server is listening on ${HOST}:${PORT}`);
 });
 
