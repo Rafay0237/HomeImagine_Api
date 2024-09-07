@@ -19,8 +19,8 @@ app.use(cors({
     "https://home-imagine-client.vercel.app", 
     "http://localhost:5173"                   
   ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"] 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+  credentials: true 
 }));
 
 app.use(express.json());
