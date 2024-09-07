@@ -1,6 +1,5 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const bodyParser = require('body-parser');
 const cors = require("cors");
 require("dotenv").config();
 
@@ -18,10 +17,9 @@ const app = express();
 app.use(cors({
   origin: "https://home-imagine-client.vercel.app",
   methods: ["GET","POST","PUT","DELETE"],
-  credentials: true
+  allowedHeaders: "*"
 }));
 app.use(express.json());
-app.use(bodyParser.json());
 
 // Routes
 app.get("/", (req, res) => {
