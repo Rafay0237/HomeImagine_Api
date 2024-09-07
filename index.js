@@ -17,6 +17,7 @@ const app = express();
 app.use(cors({
   origin: [
     "https://home-imagine-client.vercel.app", 
+    "https://home-imagine-pro.vercel.app",
     "http://localhost:5173"                   
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'], 
